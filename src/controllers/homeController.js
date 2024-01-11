@@ -41,7 +41,7 @@ let getEditCRUD = async (req, res) => {
             userData: userData
         });
     } else {
-        return res.send('User not found!');
+        return res.send('User not found');
     }
 }
 
