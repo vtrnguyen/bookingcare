@@ -16,7 +16,7 @@ let inintWebRoutes = (app) => {
 
     // API
     router.post('/api/login', userConTroller.handleLogin);
-
+    router.get('/api/get/-all-users', userConTroller.handleGetAllUsers);
 
     return app.use("/", router);
 }
