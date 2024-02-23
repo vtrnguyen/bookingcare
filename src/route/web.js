@@ -14,12 +14,15 @@ let inintWebRoutes = (app) => {
     router.post('/put-crud', homeController.putCRUD);
     router.get('/delete-crud', homeController.deleteCRUD);
 
-    // API
+    // USERS API
     router.post('/api/login', userConTroller.handleLogin);
     router.get('/api/get-all-users', userConTroller.handleGetAllUsers);
     router.post('/api/create-new-user', userConTroller.handleCreateNewUser);
     router.delete('/api/delete-user', userConTroller.handleDeleteUser);
     router.put('/api/edit-user', userConTroller.handleEditUser);
+
+    // ALLCODES API
+    router.get('/allcode', userConTroller.getAllCode);
 
     return app.use("/", router);
 }
