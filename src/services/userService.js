@@ -28,7 +28,7 @@ let handleUserLogin = (email, password) => {
                         email: email
                     },
                     raw: true,
-                    attributes: ["email", "roleId", "password"],
+                    attributes: ["email", "roleId", "password", "firstName", "lastName"],
                 })
 
                 if (user) {
