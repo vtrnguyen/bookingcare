@@ -22,7 +22,7 @@ let inintWebRoutes = (app) => {
     router.put('/api/edit-user', userConTroller.handleEditUser);
 
     // ALLCODES API
-    router.get('/allcode', userConTroller.getAllCode);
+    router.get('/api/allcode', userConTroller.getAllCode);
 
     return app.use("/", router);
 }
