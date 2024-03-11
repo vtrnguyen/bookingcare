@@ -1,10 +1,12 @@
 import express from "express";
 import homeController from "../controllers/homeController";
 import userConTroller from "../controllers/userController";
+import doctorControlelr from "../controllers/doctorController";
 
 let router = express.Router();
 
 let inintWebRoutes = (app) => {
+    // HOME CONTROLLER
     router.get('/', homeController.getHomePage);
     router.get('/about', homeController.getAboutPage);
     router.get('/crud', homeController.crudPage);
@@ -20,9 +22,11 @@ let inintWebRoutes = (app) => {
     router.post('/api/create-new-user', userConTroller.handleCreateNewUser);
     router.delete('/api/delete-user', userConTroller.handleDeleteUser);
     router.put('/api/edit-user', userConTroller.handleEditUser);
-
-    // ALLCODES API
+    // ALLCODES 
     router.get('/api/allcode', userConTroller.getAllCode);
+
+    // DOCTORS API
+    router.get('/api/top-doctor-home', doctorControlelr.getTopDoctorHome);
 
     return app.use("/", router);
 }
