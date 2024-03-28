@@ -57,18 +57,35 @@ let getAllDoctors = () => {
 let saveDetailInforDoctor = (inputData) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!inputData.doctorId || !inputData.contentMarkdown || !inputData.contentHTML) {
+            if (!inputData.doctorId || !inputData.contentMarkdown || !inputData.contentHTML || !inputData.action) {
                 resolve({
                     errCode: 1,
                     errMessage: 'Missing parameters input!!!',
                 });
             } else {
-                await db.Markdowns.create({
-                    contentMarkdown: inputData.contentMarkdown,
-                    contentHTML: inputData.contentHTML,
-                    description: inputData.description,
-                    doctorId: inputData.doctorId,
-                });
+                if (inputData.action === "CREATE") {
+                    await db.Markdowns.create({
+                        contentMarkdown: inputData.contentMarkdown,
+                        contentHTML: inputData.contentHTML,
+                        description: inputData.description,
+                        doctorId: inputData.doctorId,
+                    });
+                } else if (inputData.action === "EDIT") {
+                    let doctorMarkdown = await db.Markdowns.findOne({
+                        where: {
+                            doctorId: inputData.doctorId,
+                        },
+                        raw: false
+                    });
+
+                    if (doctorMarkdown) {
+                        doctorMarkdown.contentHTML = inputData.contentHTML;
+                        doctorMarkdown.contentMarkdown = inputData.contentMarkdown;
+                        doctorMarkdown.description = inputData.description;
+                        doctorMarkdown.updatedAt = new Date();
+                        await doctorMarkdown.save();
+                    }
+                }
 
                 resolve({
                     errCode: 0,

@@ -1,7 +1,7 @@
 import express from "express";
 import homeController from "../controllers/homeController";
 import userConTroller from "../controllers/userController";
-import doctorControlelr from "../controllers/doctorController";
+import doctorController from "../controllers/doctorController";
 
 let router = express.Router();
 
@@ -26,10 +26,10 @@ let inintWebRoutes = (app) => {
     router.get('/api/allcode', userConTroller.getAllCode);
 
     // DOCTORS API
-    router.get('/api/top-doctor-home', doctorControlelr.getTopDoctorHome);
-    router.get('/api/get-all-doctors', doctorControlelr.getAllDoctors);
-    router.post('/api/save-infor-doctor', doctorControlelr.postInforDoctors);
-    router.get('/api/get-detail-doctor-by-id', doctorControlelr.getDetailDoctorById);
+    router.get('/api/top-doctor-home', doctorController.getTopDoctorHome);
+    router.get('/api/get-all-doctors', doctorController.getAllDoctors);
+    router.post('/api/save-infor-doctor', doctorController.postInforDoctors);
+    router.get('/api/get-detail-doctor-by-id', doctorController.getDetailDoctorById);
 
     return app.use("/", router);
 }
