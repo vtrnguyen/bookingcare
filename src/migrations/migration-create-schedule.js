@@ -1,6 +1,7 @@
 'use strict';
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
+  async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Schedules', {
       id: {
         allowNull: false,
@@ -20,7 +21,7 @@ module.exports = {
       timeType: {
         type: Sequelize.STRING
       },
-      docterId: {
+      doctorId: {
         type: Sequelize.INTEGER
       },
       createdAt: {
@@ -33,7 +34,7 @@ module.exports = {
       }
     });
   },
-  down: async (queryInterface, Sequelize) => {
+  async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Schedules');
   }
 };

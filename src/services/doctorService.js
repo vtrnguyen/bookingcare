@@ -1,4 +1,9 @@
+import { where } from "sequelize";
 import db from "../models";
+require('dotenv').config();
+import _ from "lodash";
+
+const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE;
 
 let getTopDoctorHome = (limitInput) => {
     return new Promise(async (resolve, reject) => {
@@ -141,7 +146,62 @@ let getDetailDoctorById = (doctorId) => {
     })
 }
 
+let bulkCreateSchedule = (dataInput) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!dataInput.arrSchedule || !dataInput.doctorId || !dataInput.formatedDate) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required parameters!!!',
+                })
+            } else {
+                let schedule = dataInput.arrSchedule;
+                
+                // add max number schedule to each element 
+                if (schedule && schedule.length > 0) {
+                    schedule = schedule.map((item, index) => {
+                        item.maxNumber = MAX_NUMBER_SCHEDULE;
+                        return item;
+                    })
+                }
+
+                // get all existing date from database
+                let existing = await db.Schedule.findAll({
+                    where: { doctorId: dataInput.doctorId, date: dataInput.formatedDate },
+                    attributes: ['timeType', 'date', 'doctorId', 'maxNumber'],
+                });
+
+                // convert existing date to compare with the data date u want to create
+                if (existing && existing.length > 0) {
+                    existing = existing.map((item, index) => {
+                        item.date = new Date(item.date).getTime();
+                        return item;
+                    });
+                }
+
+                // comparing the schedule data to create with the existing data schedule, if it is different, do below
+                let toCreate = _.differenceWith(schedule, existing, (elementSchedule, elementExisting) => {
+                    return elementSchedule.date === elementExisting.date && elementSchedule.timeType === elementExisting.timeType;
+                });
+
+                // creating the schedule
+                if (toCreate && toCreate.length > 0) {
+                    await db.Schedule.bulkCreate(toCreate);
+                }
+
+                resolve({
+                    errCode: 0,
+                    errMessage: 'OK',
+                });
+            }
+        } catch(e) {
+            reject(e);
+        }
+    })
+}
+
 module.exports = {
     getTopDoctorHome, getAllDoctors,
     saveDetailInforDoctor, getDetailDoctorById,
+    bulkCreateSchedule
 }
