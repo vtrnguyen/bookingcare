@@ -171,17 +171,9 @@ let bulkCreateSchedule = (dataInput) => {
                     attributes: ['timeType', 'date', 'doctorId', 'maxNumber'],
                 });
 
-                // convert existing date to compare with the data date u want to create
-                if (existing && existing.length > 0) {
-                    existing = existing.map((item, index) => {
-                        item.date = new Date(item.date).getTime();
-                        return item;
-                    });
-                }
-
                 // comparing the schedule data to create with the existing data schedule, if it is different, do below
                 let toCreate = _.differenceWith(schedule, existing, (elementSchedule, elementExisting) => {
-                    return elementSchedule.date === elementExisting.date && elementSchedule.timeType === elementExisting.timeType;
+                    return +elementSchedule.date === +elementExisting.date && elementSchedule.timeType === elementExisting.timeType;
                 });
 
                 // creating the schedule
@@ -213,7 +205,12 @@ let getScheduleDoctorByDate = (doctorId, date) => {
                     where: {
                         doctorId: doctorId,
                         date: date,
-                    }
+                    },
+                    include: [
+                        { model: db.Allcodes, as: 'timeTypeData', attributes: ['valueEn', 'valueVi'] },
+                    ],
+                    raw: false,
+                    nest: true,
                 });
 
                 if (!dataSchedule) {
