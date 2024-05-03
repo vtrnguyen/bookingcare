@@ -110,7 +110,7 @@ let saveDetailInforDoctor = (inputData) => {
                     doctorInfor.doctorId = inputData.doctorId;
                     doctorInfor.priceId = inputData.selectedPrice;
                     doctorInfor.paymentId = inputData.selectedPayment;
-                    doctorInfor.provinceId = inputData.selectedPayment;
+                    doctorInfor.provinceId = inputData.selectedProvince;
                     doctorInfor.addressClinic = inputData.addressClinic;
                     doctorInfor.nameClinic = inputData.nameClinic;
                     doctorInfor.note = inputData.note;
@@ -122,7 +122,7 @@ let saveDetailInforDoctor = (inputData) => {
                         doctorId: inputData.doctorId,
                         priceId: inputData.selectedPrice,
                         paymentId: inputData.selectedPayment,
-                        provinceId: inputData.selectedPayment,
+                        provinceId: inputData.selectedProvince,
                         addressClinic: inputData.addressClinic,
                         nameClinic: inputData.nameClinic,
                         note: inputData.note,
@@ -160,6 +160,16 @@ let getDetailDoctorById = (doctorId) => {
                     include: [
                         { model: db.Markdowns, attributes: ['contentHTML', 'contentMarkdown', 'description'] },
                         { model: db.Allcodes, as: 'positionData', attributes: ['valueVi', 'valueEn'] },
+                        { model: db.Doctor_Infor,
+                            attributes: {
+                               exclude: ['id', 'doctorId']
+                            },
+                            include: [
+                                { model: db.Allcodes, as: 'priceTypeData', attributes: ['valueVi', 'valueEn'] },
+                                { model: db.Allcodes, as: 'paymentTypeData', attributes: ['valueVi', 'valueEn'] },
+                                { model: db.Allcodes, as: 'provinceTypeData', attributes: ['valueVi', 'valueEn'] },
+                            ]
+                        },
                     ],
                     raw: false,
                     nest: true,
