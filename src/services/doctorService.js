@@ -315,9 +315,68 @@ let getExtraInforDoctorById = (doctorId) => {
     })
 }
 
+let getProfileDoctorById = (doctorId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!doctorId) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Mising required parameters!!!',
+                });
+            } else {
+                if (!doctorId) {
+                    resolve({
+                        errCode: 1,
+                        errMessage: 'Missing input parameter!!!',
+                    });
+                } else {
+                    let doctorInfor = await db.User.findOne({
+                        where: {
+                            id: doctorId,
+                        },
+                        attributes: {
+                            exclude: ['password'],
+                        }, 
+                        include: [
+                            { model: db.Markdowns, attributes: ['contentHTML', 'contentMarkdown', 'description'] },
+                            { model: db.Allcodes, as: 'positionData', attributes: ['valueVi', 'valueEn'] },
+                            { model: db.Doctor_Infor,
+                                attributes: {
+                                   exclude: ['id', 'doctorId']
+                                },
+                                include: [
+                                    { model: db.Allcodes, as: 'priceTypeData', attributes: ['valueVi', 'valueEn'] },
+                                    { model: db.Allcodes, as: 'paymentTypeData', attributes: ['valueVi', 'valueEn'] },
+                                    { model: db.Allcodes, as: 'provinceTypeData', attributes: ['valueVi', 'valueEn'] },
+                                ]
+                            },
+                        ],
+                        raw: false,
+                        nest: true,
+                    });
+    
+                    if (doctorInfor && doctorInfor.image) {
+                        doctorInfor.image = new Buffer(doctorInfor.image, 'base64').toString('binary');
+                    }
+    
+                    if (!doctorInfor) data = {};
+
+                    resolve({
+                        errCode: 0,
+                        errMessage: 'OK',
+                        data: doctorInfor
+                    })
+                }
+            }
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
 module.exports = {
     getTopDoctorHome, getAllDoctors,
     saveDetailInforDoctor, getDetailDoctorById,
     bulkCreateSchedule, getScheduleDoctorByDate,
-    getExtraInforDoctorById
+    getExtraInforDoctorById, getProfileDoctorById
 }
