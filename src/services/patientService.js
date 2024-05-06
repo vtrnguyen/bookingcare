@@ -54,10 +54,20 @@ let postBookingAppointment = (inputData) => {
                     });
                 }
 
-                resolve({
-                    errCode: 0,
-                    errMessage: 'Save infor booking patient succeed',
-                });
+                if (user[1]) {
+                    resolve({
+                        errCode: 0,
+                        errSubCode: 1,
+                        errMessage: 'Booking a new appointment is successfully',
+                    });
+                } else {
+                    resolve({
+                        errCode: 0,
+                        errSubCode: 0,
+                        errMessage: 'This user has already booked the appointment before!!!',
+                    });
+                }
+
             }
         } catch (e) {
             reject(e);
