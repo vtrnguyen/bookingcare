@@ -2,6 +2,7 @@ import db from "../models";
 require('dotenv').config();
 import bcrypt from 'bcryptjs';
 import { sendSimpleEmail } from './emailService';
+import { v4 as uuidv4 } from 'uuid';
 
 const salt = bcrypt.genSaltSync(10);
 
@@ -16,6 +17,12 @@ let hashUserPassword = (password) => {
     })
 }
 
+let buildUrlEmail = (doctorId, token) => {
+    let result = `${process.env.URL_REACT}/verify-booking/?token=${token}&doctorId=${doctorId}`;
+
+    return result;
+}
+
 let postBookingAppointment = (inputData) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -27,6 +34,8 @@ let postBookingAppointment = (inputData) => {
                     errMessage: 'Missing input parameter',
                 });
             } else {
+                let token = uuidv4(); // ⇨ '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
+
                 // send email to patient to confirm booking schedule
                 await sendSimpleEmail({
                     receiverEmail: inputData.email,
@@ -34,7 +43,7 @@ let postBookingAppointment = (inputData) => {
                     time: inputData.timeString,
                     doctorName: inputData.doctorName,
                     language: inputData.language,
-                    redirectLink: "https://vtrnguyen.github.io/origin-profile/",
+                    redirectLink: buildUrlEmail(inputData.doctorId, token),
                 });
 
                 // upsert users
@@ -62,6 +71,7 @@ let postBookingAppointment = (inputData) => {
                             patientId: user[0].id,
                             date: inputData.date,
                             timeType: inputData.timeType,
+                            token: token,
                         },
                     });
                 }
@@ -87,6 +97,49 @@ let postBookingAppointment = (inputData) => {
     });
 }
 
+let postVerifyBookingAppointment = (inputData) => {
+    return new Promise (async (resolve, reject) => {
+        try {
+            console.log(inputData);
+            if (!inputData.token || !inputData.doctorId) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing input parameter!!!',
+                });
+            } else {
+                let appointment = await db.Bookings.findOne({
+                    where: {
+                        doctorId: inputData.doctorId,
+                        token: inputData.token,
+                        statusId: 'S1',
+                    },
+                    raw: false,
+                });
+
+                if (appointment) {
+                    appointment.statusId = 'S2';
+                    await appointment.save();
+
+                    resolve({
+                        errCode: 0,
+                        errMessage: 'Update appointment succeed',
+                    })
+                } else {
+                    resolve({
+                        errCode: 2,
+                        errMessage: 'Appointment has been activated or does not exist!!!',
+                    });
+                }
+            }
+
+            resolve();
+
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
 module.exports = {
-    postBookingAppointment,
+    postBookingAppointment, postVerifyBookingAppointment
 }
