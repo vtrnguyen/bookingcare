@@ -17,19 +17,44 @@ let sendSimpleEmail = async (dataSend) => {
         to: dataSend.receiverEmail, // list of receivers
         subject: "Xác nhận đặt lịch khám bệnh", // Subject line
         text: "Test booking schedule doctor", // plain text body
-        html: `
-            <h3>Xin chào ${dataSend.patientName}!</h3>
-            <p>Email này nhằm xác nhận bạn đã đặt lịch khám bệnh trên hệ thống Bookingcare của chúng tôi.</p>
-            <p>Thông tin đặt lịch khám bệnh:</p>
-            <div><b>Thời gian: ${dataSend.time}</b></div>
-            <div><b>Bác sĩ phụ trách: ${dataSend.doctorName}</b></div>
-            <p>Nếu bạn thông tin bên trên là đúng, vui lòng ấn vào đường link để hoàn tất thủ tục đặt lịch khám!</p>
+        html: getBodyHTMLEmail(dataSend), 
+    });
+}
+
+let getBodyHTMLEmail = (dataSend) => {
+    let result = '';
+
+    if (dataSend.language === 'vi') {
+        result = `
+        <h3>Xin chào ${dataSend.patientName}!</h3>
+        <p>Email này nhằm xác nhận bạn đã đặt lịch khám bệnh trên hệ thống Bookingcare của chúng tôi.</p>
+        <p>Thông tin đặt lịch khám bệnh:</p>
+        <div><b>Thời gian: ${dataSend.time}</b></div>
+        <div><b>Bác sĩ phụ trách: ${dataSend.doctorName}</b></div>
+        <p>Nếu bạn xác nhận thông tin bên trên là đúng, vui lòng ấn vào đường link để hoàn tất thủ tục đặt lịch khám!</p>
+        <div>
+            <a href="${dataSend.redirectLink} target="_blank"">Click here</a>
+        </div>
+        <div>Bookingcare xin chân thành cảm ơn,</div>
+        `
+    }
+
+    if (dataSend.language === 'en') {
+        result = `
+            <h3>Dear ${dataSend.patientName}!</h3>
+            <p>This email to confirm that you have booked schedule on Bookingcare system.</p>
+            <p>Booking schedule information:</p>
+            <div><b>Time: ${dataSend.time}</b></div>
+            <div><b>Doctor: ${dataSend.doctorName}</b></div>
+            <p>If you confirm this information is right, please click this below link to complete booking schedule procedure!</p>
             <div>
                 <a href="${dataSend.redirectLink} target="_blank"">Click here</a>
             </div>
-            <div>Bookingcare xin chân thành cảm ơn</div>
-        `, 
-    });
+            <div>Best regards,</div>
+        `
+    }
+
+    return result;
 }
 
 module.exports = {

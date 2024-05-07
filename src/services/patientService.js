@@ -19,19 +19,24 @@ let hashUserPassword = (password) => {
 let postBookingAppointment = (inputData) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!inputData.email || !inputData.doctorId || !inputData.timeType || !inputData.date) {
+            if (!inputData.email || !inputData.doctorId 
+                || !inputData.timeType || !inputData.date
+                || !inputData.patientName) {
                 resolve({
                     errCode: 1,
                     errMessage: 'Missing input parameter',
                 });
             } else {
+                // send email to patient to confirm booking schedule
                 await sendSimpleEmail({
                     receiverEmail: inputData.email,
-                    patientName: "Bùi Lê Thị Linh",
-                    time: "13:00 - 14:00 - Chủ Nhật 07/05/2024",
-                    doctorName: "Henry Vo",
+                    patientName: inputData.patientName,
+                    time: inputData.timeString,
+                    doctorName: inputData.doctorName,
+                    language: inputData.language,
                     redirectLink: "https://vtrnguyen.github.io/origin-profile/",
                 });
+
                 // upsert users
                 let hashPasswordFromBcrypt = await hashUserPassword('123');
                 let user = await db.User.findOrCreate({
@@ -46,7 +51,6 @@ let postBookingAppointment = (inputData) => {
                 });
 
                 // create a booking record
-
                 if (user && user[0]) {
                     await db.Bookings.findOrCreate({
                         where: { 
