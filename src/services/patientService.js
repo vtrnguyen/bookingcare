@@ -1,6 +1,7 @@
 import db from "../models";
 require('dotenv').config();
 import bcrypt from 'bcryptjs';
+import { sendSimpleEmail } from './emailService';
 
 const salt = bcrypt.genSaltSync(10);
 
@@ -24,6 +25,13 @@ let postBookingAppointment = (inputData) => {
                     errMessage: 'Missing input parameter',
                 });
             } else {
+                await sendSimpleEmail({
+                    receiverEmail: inputData.email,
+                    patientName: "Bùi Lê Thị Linh",
+                    time: "13:00 - 14:00 - Chủ Nhật 07/05/2024",
+                    doctorName: "Henry Vo",
+                    redirectLink: "https://vtrnguyen.github.io/origin-profile/",
+                });
                 // upsert users
                 let hashPasswordFromBcrypt = await hashUserPassword('123');
                 let user = await db.User.findOrCreate({
