@@ -100,7 +100,6 @@ let postBookingAppointment = (inputData) => {
 let postVerifyBookingAppointment = (inputData) => {
     return new Promise (async (resolve, reject) => {
         try {
-            console.log(inputData);
             if (!inputData.token || !inputData.doctorId) {
                 resolve({
                     errCode: 1,
