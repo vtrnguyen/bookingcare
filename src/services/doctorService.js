@@ -5,6 +5,29 @@ import _ from "lodash";
 
 const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE;
 
+let checkRequiredFields = (inputData) => {
+    let arrFields = ['doctorId', 'contentMarkdown', 'contentHTML', 
+        'action', 'selectedPrice', 'selectedPayment',
+        'selectedProvince', 'nameClinic', 'addressClinic',
+        'note', 'specialtyId',
+    ];
+
+    let isValid = true;
+    let element = '';
+    for (let i = 0; i < arrFields.length; i++) {
+        if (!inputData[arrFields[i]]) {
+            isValid = false;
+            element = arrFields[i];
+            break;
+        }
+    }
+
+    return {
+        isValid: isValid,
+        element: element,
+    }
+}
+
 let getTopDoctorHome = (limitInput) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -62,14 +85,11 @@ let getAllDoctors = () => {
 let saveDetailInforDoctor = (inputData) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!inputData.doctorId || !inputData.contentMarkdown 
-                || !inputData.contentHTML || !inputData.action 
-                || !inputData.selectedPrice || !inputData.selectedPayment 
-                || !inputData.selectedProvince || !inputData.nameClinic 
-                || !inputData.addressClinic || !inputData.note) {
+            let checkRequiredInput = checkRequiredFields(inputData);
+            if (checkRequiredInput.isValid === false) {
                 resolve({
                     errCode: 1,
-                    errMessage: 'Missing parameters input!!!',
+                    errMessage: `Missing parameters ${checkRequiredInput.element}!!!`,
                 });
             } else {
                 // upsert to Markdown
@@ -97,7 +117,7 @@ let saveDetailInforDoctor = (inputData) => {
                     }
                 }
 
-                // upsert to Docto_Infor
+                // upsert to Doctor_Infor
                 let doctorInfor = await db.Doctor_Infor.findOne({
                     where: {
                         doctorId: inputData.doctorId,
@@ -114,6 +134,8 @@ let saveDetailInforDoctor = (inputData) => {
                     doctorInfor.addressClinic = inputData.addressClinic;
                     doctorInfor.nameClinic = inputData.nameClinic;
                     doctorInfor.note = inputData.note;
+                    doctorInfor.specialtyId = inputData.specialtyId;
+                    doctorInfor.clinicId = inputData.clinicId;
 
                     doctorInfor.save();
                 } else {
@@ -126,6 +148,8 @@ let saveDetailInforDoctor = (inputData) => {
                         addressClinic: inputData.addressClinic,
                         nameClinic: inputData.nameClinic,
                         note: inputData.note,
+                        specialtyId: inputData.specialtyId,
+                        clinicId: inputData.clinicId,
                     });
                 }
 
@@ -168,6 +192,7 @@ let getDetailDoctorById = (doctorId) => {
                                 { model: db.Allcodes, as: 'priceTypeData', attributes: ['valueVi', 'valueEn'] },
                                 { model: db.Allcodes, as: 'paymentTypeData', attributes: ['valueVi', 'valueEn'] },
                                 { model: db.Allcodes, as: 'provinceTypeData', attributes: ['valueVi', 'valueEn'] },
+                                { model: db.Specialties, as: 'specialtyTypeData', attributes: ['nameVi', 'nameEn'] },
                             ]
                         },
                     ],
