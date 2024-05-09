@@ -14,7 +14,10 @@ module.exports = {
       descriptionMarkDown: {
         type: Sequelize.TEXT
       },
-      name: {
+      nameVi: {
+        type: Sequelize.STRING
+      },
+      nameEn: {
         type: Sequelize.STRING
       },
       image: {

@@ -3,7 +3,7 @@ import db from "../models";
 let createSpecialty = (inputData) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!inputData.specialtyName || !inputData.imageBase64 
+            if (!inputData.specialtyNameVi || !inputData.specialtyNameEn 
                 || !inputData.descriptionHTML || !inputData.descriptionMarkDown) {
                 resolve({
                     errCode: 1,
@@ -11,7 +11,8 @@ let createSpecialty = (inputData) => {
                 });
             } else {
                 await db.Specialties.create({
-                    name: inputData.specialtyName,
+                    nameVi: inputData.specialtyNameVi,
+                    nameEn: inputData.specialtyNameEn,
                     image: inputData.imageBase64,
                     descriptionHTML: inputData.descriptionHTML,
                     descriptionMarkDown: inputData.descriptionMarkDown,
