@@ -4,7 +4,8 @@ let createSpecialty = (inputData) => {
     return new Promise(async (resolve, reject) => {
         try {
             if (!inputData.specialtyNameVi || !inputData.specialtyNameEn 
-                || !inputData.descriptionHTML || !inputData.descriptionMarkDown) {
+                || !inputData.descriptionHTML || !inputData.descriptionMarkDown
+                || !inputData.imageBase64) {
                 resolve({
                     errCode: 1,
                     errMessage: 'Missing input parameter!!!',
