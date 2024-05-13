@@ -49,8 +49,8 @@ let inintWebRoutes = (app) => {
 
     // CLINIC API
     router.post('/api/create-new-clinic', clinicController.createClinic);
-    // router.get('/api/get-all-specialty', specialtyController.getAllSpecialty);
-    // router.get('/api/get-detail-specialty-by-id', specialtyController.getAllDetailSpecialtyById);
+    router.get('/api/get-all-clinic', clinicController.getAllClinic);
+    router.get('/api/get-detail-clinic-by-id', clinicController.getAllDetailClinicById);
 
     return app.use("/", router);
 }

@@ -193,6 +193,7 @@ let getDetailDoctorById = (doctorId) => {
                                 { model: db.Allcodes, as: 'paymentTypeData', attributes: ['valueVi', 'valueEn'] },
                                 { model: db.Allcodes, as: 'provinceTypeData', attributes: ['valueVi', 'valueEn'] },
                                 { model: db.Specialties, as: 'specialtyTypeData', attributes: ['nameVi', 'nameEn'] },
+                                { model: db.Clinics, as: 'clinicTypeData', attributes: ['name'] },
                             ]
                         },
                     ],
