@@ -7,7 +7,10 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       User.belongsTo(models.Allcodes, { foreignKey: 'positionId', targetKey: 'keyMap', as: 'positionData' });
       User.belongsTo(models.Allcodes, { foreignKey: 'gender', targetKey: 'keyMap', as: 'genderData' });
+      
       User.hasMany(models.Schedule, { foreignKey: 'doctorID', as: 'doctorData' });
+      User.hasMany(models.Bookings, { foreignKey: 'patientId', as: 'patientData' });
+      
       // the foreign key below is belongs to table Markdowns
       User.hasOne(models.Markdowns, { foreignKey: 'doctorId' });
       User.hasOne(models.Doctor_Infor, { foreignKey: 'doctorId' });

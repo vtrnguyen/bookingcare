@@ -28,7 +28,8 @@ let postBookingAppointment = (inputData) => {
         try {
             if (!inputData.email || !inputData.doctorId 
                 || !inputData.timeType || !inputData.date
-                || !inputData.patientName) {
+                || !inputData.patientName || !inputData.selectedGender
+                || !inputData.address) {
                 resolve({
                     errCode: 1,
                     errMessage: 'Missing input parameter',
@@ -56,6 +57,9 @@ let postBookingAppointment = (inputData) => {
                         email: inputData.email,
                         password: hashPasswordFromBcrypt,
                         roleId: 'R3',
+                        gender: inputData.selectedGender,
+                        address: inputData.address,
+                        firstName: inputData.patientName,
                     },
                 });
 

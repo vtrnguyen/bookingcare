@@ -348,54 +348,90 @@ let getProfileDoctorById = (doctorId) => {
             if (!doctorId) {
                 resolve({
                     errCode: 1,
-                    errMessage: 'Mising required parameters!!!',
+                    errMessage: 'Missing input parameter!!!',
                 });
             } else {
-                if (!doctorId) {
-                    resolve({
-                        errCode: 1,
-                        errMessage: 'Missing input parameter!!!',
-                    });
-                } else {
-                    let doctorInfor = await db.User.findOne({
-                        where: {
-                            id: doctorId,
-                        },
-                        attributes: {
-                            exclude: ['password'],
-                        }, 
-                        include: [
-                            { model: db.Markdowns, attributes: ['contentHTML', 'contentMarkdown', 'description'] },
-                            { model: db.Allcodes, as: 'positionData', attributes: ['valueVi', 'valueEn'] },
-                            { model: db.Doctor_Infor,
-                                attributes: {
-                                   exclude: ['id', 'doctorId']
-                                },
-                                include: [
-                                    { model: db.Allcodes, as: 'priceTypeData', attributes: ['valueVi', 'valueEn'] },
-                                    { model: db.Allcodes, as: 'paymentTypeData', attributes: ['valueVi', 'valueEn'] },
-                                    { model: db.Allcodes, as: 'provinceTypeData', attributes: ['valueVi', 'valueEn'] },
-                                ]
+                let doctorInfor = await db.User.findOne({
+                    where: {
+                        id: doctorId,
+                    },
+                    attributes: {
+                        exclude: ['password'],
+                    }, 
+                    include: [
+                        { model: db.Markdowns, attributes: ['contentHTML', 'contentMarkdown', 'description'] },
+                        { model: db.Allcodes, as: 'positionData', attributes: ['valueVi', 'valueEn'] },
+                        { model: db.Doctor_Infor,
+                            attributes: {
+                               exclude: ['id', 'doctorId']
                             },
-                        ],
-                        raw: false,
-                        nest: true,
-                    });
-    
-                    if (doctorInfor && doctorInfor.image) {
-                        doctorInfor.image = new Buffer(doctorInfor.image, 'base64').toString('binary');
-                    }
-    
-                    if (!doctorInfor) data = {};
+                            include: [
+                                { model: db.Allcodes, as: 'priceTypeData', attributes: ['valueVi', 'valueEn'] },
+                                { model: db.Allcodes, as: 'paymentTypeData', attributes: ['valueVi', 'valueEn'] },
+                                { model: db.Allcodes, as: 'provinceTypeData', attributes: ['valueVi', 'valueEn'] },
+                            ]
+                        },
+                    ],
+                    raw: false,
+                    nest: true,
+                });
 
-                    resolve({
-                        errCode: 0,
-                        errMessage: 'OK',
-                        data: doctorInfor
-                    })
+                if (doctorInfor && doctorInfor.image) {
+                    doctorInfor.image = new Buffer(doctorInfor.image, 'base64').toString('binary');
                 }
+
+                if (!doctorInfor) data = {};
+
+                resolve({
+                    errCode: 0,
+                    errMessage: 'OK',
+                    data: doctorInfor
+                })
             }
         } catch (e) {
+            reject(e);
+        }
+    })
+}
+
+let getListBookedPatient = (doctorId, bookingDate) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!doctorId || !bookingDate) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing input parameter!!!',
+                });
+            } else {
+                let data = await db.Bookings.findAll({
+                    where: {
+                        statusId: 'S2',
+                        doctorId: doctorId,
+                        date: bookingDate,
+                    },
+                    include: [
+                        {
+                            model: db.User,
+                            as: 'patientData',
+                            attributes: ['email', 'firstName', 'address', 'gender'],
+                            include: [
+                                {
+                                    model: db.Allcodes, as: 'genderData', attributes: ['valueVi', 'valueEn'],
+                                }
+                            ]
+                        },
+                    ],
+                    raw: false,
+                    nest: true,
+                });
+
+                resolve({
+                    errCode: 0,
+                    errMessage: 'OK',
+                    data,
+                })
+            }
+        } catch(e) {
             reject(e);
         }
     })
@@ -405,5 +441,6 @@ module.exports = {
     getTopDoctorHome, getAllDoctors,
     saveDetailInforDoctor, getDetailDoctorById,
     bulkCreateSchedule, getScheduleDoctorByDate,
-    getExtraInforDoctorById, getProfileDoctorById
+    getExtraInforDoctorById, getProfileDoctorById,
+    getListBookedPatient,
 }
