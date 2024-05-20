@@ -68,6 +68,7 @@ let postBookingAppointment = (inputData) => {
                     await db.Bookings.findOrCreate({
                         where: { 
                             patientId: user[0].id,
+                            // date: inputData.date,
                         },
                         defaults: {
                             statusId: 'S1',

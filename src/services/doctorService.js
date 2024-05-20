@@ -420,6 +420,11 @@ let getListBookedPatient = (doctorId, bookingDate) => {
                                 }
                             ]
                         },
+                        {
+                            model: db.Allcodes, 
+                            as: 'timeTypeDataConfirm', 
+                            attributes: ['valueVi', 'valueEn'],
+                        },
                     ],
                     raw: false,
                     nest: true,
