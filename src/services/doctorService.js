@@ -1,7 +1,7 @@
-import { where } from "sequelize";
 import db from "../models";
 require('dotenv').config();
 import _ from "lodash";
+import emailService from "../services/emailService";
 
 const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE;
 
@@ -442,10 +442,58 @@ let getListBookedPatient = (doctorId, bookingDate) => {
     })
 }
 
+let postSendingRemedy = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!data.email || !data.doctorId || 
+                !data.patientId || !data.timeType ||
+                !data.imgBase64
+            ) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing input parameter!!!',
+                });
+            } else {
+                // update patient status
+                let appointment = await db.Bookings.findOne({
+                    where: {
+                        doctorId: data.doctorId,
+                        patientId: data.patientId,
+                        timeType: data.timeType,
+                        statusId: 'S2',
+                    },
+                    raw: false,
+                });
+
+                // if appointment exists, update it with status id 'S3' 
+                if (appointment) {
+                    appointment.statusId = 'S3';
+                    await appointment.save();
+
+                    // sending email remedy
+                    await emailService.sendAttachment(data);
+
+                    resolve({
+                        errCode: 0,
+                        errMessage: 'OK',
+                    });
+                } else {
+                    resolve({
+                        errCode: 2,
+                        errMessage: 'Appointment is not found',
+                    });
+                }
+            }
+        } catch(e) {
+            reject(e);
+        }
+    })
+}
+
 module.exports = {
     getTopDoctorHome, getAllDoctors,
     saveDetailInforDoctor, getDetailDoctorById,
     bulkCreateSchedule, getScheduleDoctorByDate,
     getExtraInforDoctorById, getProfileDoctorById,
-    getListBookedPatient,
+    getListBookedPatient, postSendingRemedy
 }

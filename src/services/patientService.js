@@ -37,16 +37,6 @@ let postBookingAppointment = (inputData) => {
             } else {
                 let token = uuidv4(); // ⇨ '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
 
-                // send email to patient to confirm booking schedule
-                await sendSimpleEmail({
-                    receiverEmail: inputData.email,
-                    patientName: inputData.patientName,
-                    time: inputData.timeString,
-                    doctorName: inputData.doctorName,
-                    language: inputData.language,
-                    redirectLink: buildUrlEmail(inputData.doctorId, token),
-                });
-
                 // upsert users
                 let hashPasswordFromBcrypt = await hashUserPassword('123');
                 let user = await db.User.findOrCreate({
@@ -65,10 +55,11 @@ let postBookingAppointment = (inputData) => {
 
                 // create a booking record
                 if (user && user[0]) {
-                    await db.Bookings.findOrCreate({
+                    let bookingNewSchedule = await db.Bookings.findOrCreate({
                         where: { 
                             patientId: user[0].id,
-                            // date: inputData.date,
+                            date: inputData.date,
+                            timeType: inputData.timeType,
                         },
                         defaults: {
                             statusId: 'S1',
@@ -79,22 +70,35 @@ let postBookingAppointment = (inputData) => {
                             token: token,
                         },
                     });
-                }
 
-                if (user[1]) {
-                    resolve({
-                        errCode: 0,
-                        errSubCode: 1,
-                        errMessage: 'Booking a new appointment is successfully',
-                    });
+                    if (!bookingNewSchedule[1]) {
+                        resolve({
+                            errCode: 2,
+                            errMessage: 'The appointment schedule already exists!!!',
+                        });
+                    } else {
+                        // send email to patient to confirm booking schedule
+                        await sendSimpleEmail({
+                            receiverEmail: inputData.email,
+                            patientName: inputData.patientName,
+                            time: inputData.timeString,
+                            doctorName: inputData.doctorName,
+                            language: inputData.language,
+                            redirectLink: buildUrlEmail(inputData.doctorId, token),
+                        });
+
+                        resolve({
+                            errCode: 0,
+                            errMessage: 'Booking a new appointment is successfully',
+                        });
+                    }
+
                 } else {
                     resolve({
-                        errCode: 0,
-                        errSubCode: 0,
-                        errMessage: 'This user has already booked the appointment before!!!',
+                        errCode: -1,
+                        errMessage: 'User is not found!!!',
                     });
                 }
-
             }
         } catch (e) {
             reject(e);
